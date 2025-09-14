@@ -2,57 +2,29 @@
 // Ruleta component with Fortnite theme
 ---
 
-<div class="flex justify-center items-center gap-16 min-h-screen px-8">
-  <!-- Left Panel - Spin Control -->
-  <div class="backdrop-blur-[25px] bg-white/5 p-8 rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] w-[320px] self-center">
-    <h3 class="text-white/90 font-semibold text-2xl mb-6 text-center tracking-wide">🎯 CONTROL DE GIROS</h3>
-    
-    <div class="space-y-6">
-      <div>
-        <label class="text-white/80 text-sm font-medium mb-3 block">Ganador en el giro:</label>
-        <div class="grid grid-cols-5 gap-2">
-          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-2 px-3 text-white font-medium transition-all duration-300 hover:scale-105" data-spin="1">1</button>
-          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-2 px-3 text-white font-medium transition-all duration-300 hover:scale-105" data-spin="2">2</button>
-          <button class="spin-selector bg-blue-500/30 hover:bg-blue-500/40 border border-blue-400/50 rounded-lg py-2 px-3 text-white font-medium transition-all duration-300 hover:scale-105 selected" data-spin="3">3</button>
-          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-2 px-3 text-white font-medium transition-all duration-300 hover:scale-105" data-spin="4">4</button>
-          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-2 px-3 text-white font-medium transition-all duration-300 hover:scale-105" data-spin="5">5</button>
-        </div>
-      </div>
-      
-      <div class="bg-white/5 rounded-xl p-4 border border-white/20">
-        <div class="text-white/70 text-sm mb-2">Giro actual:</div>
-        <div id="currentSpinCount" class="text-white font-bold text-2xl">0</div>
-      </div>
-      
-      <div class="bg-white/5 rounded-xl p-4 border border-white/20">
-        <div class="text-white/70 text-sm mb-2">Ganador se decidirá en:</div>
-        <div id="selectedSpinNumber" class="text-blue-400 font-bold text-2xl">Giro 3</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Wheel Container -->
-  <div class="flex flex-col items-center gap-8 relative">
+<div class="flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-16 min-h-screen px-4 lg:px-8 py-4 lg:py-0">
+  <!-- Wheel Container - Always first on mobile -->
+  <div class="flex flex-col items-center gap-6 lg:gap-8 relative order-1 lg:order-2 justify-center lg:justify-start min-h-[60vh] lg:min-h-0 mt-16 lg:mt-0">
     <!-- Pointer pointing inward -->
-    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
-      <div class="w-0 h-0 border-l-[35px] border-r-[35px] border-t-[55px] border-l-transparent border-r-transparent border-t-fortnite-yellow filter drop-shadow-[0_4px_8px_rgba(255,215,0,0.5)]"></div>
+    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 translate-y-2 sm:translate-y-4 md:translate-y-6 lg:-translate-y-2 z-20">
+      <div class="w-0 h-0 border-l-[20px] lg:border-l-[35px] border-r-[20px] lg:border-r-[35px] border-t-[30px] lg:border-t-[55px] border-l-transparent border-r-transparent border-t-fortnite-yellow filter drop-shadow-[0_4px_8px_rgba(255,215,0,0.5)]"></div>
     </div>
     
     <!-- Wheel without Glass Effect (removed) -->
-    <div id="wheel" class="relative w-[700px] h-[700px] rounded-full border border-white/20 overflow-hidden mb-10">
+    <div id="wheel" class="relative w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] lg:w-[700px] lg:h-[700px] rounded-full border border-white/20 overflow-hidden mb-6 lg:mb-10">
       <!-- Dynamic Segments -->
       <div id="segments"></div>
       
       <!-- Center Circle -->
-      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-28 bg-white/90 rounded-full border border-white/30 flex items-center justify-center z-10 backdrop-blur-[15px] shadow-[0_4px_16px_0_rgba(31,38,135,0.3)]">
-        <img src="/F.svg" alt="F" class="w-12 h-12" style="filter: invert(60%) sepia(75%) saturate(1000%) hue-rotate(165deg) brightness(100%) contrast(95%);" />
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 bg-white/90 rounded-full border border-white/30 flex items-center justify-center z-10 backdrop-blur-[15px] shadow-[0_4px_16px_0_rgba(31,38,135,0.3)]">
+        <img src="/F.svg" alt="F" class="w-6 h-6 sm:w-8 sm:h-8 lg:w-12 lg:h-12" style="filter: invert(60%) sepia(75%) saturate(1000%) hue-rotate(165deg) brightness(100%) contrast(95%);" />
       </div>
     </div>
     
     <!-- Spin Button -->
     <button 
       id="spinButton" 
-      class="backdrop-blur-[25px] bg-white/10 hover:bg-white/20 px-10 py-5 rounded-2xl text-white font-semibold text-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] transform hover:scale-105 transition-all duration-300 active:scale-95"
+      class="backdrop-blur-[25px] bg-white/10 hover:bg-white/20 px-6 py-3 sm:px-8 sm:py-4 lg:px-10 lg:py-5 rounded-2xl text-white font-semibold text-lg sm:text-xl lg:text-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] transform hover:scale-105 transition-all duration-300 active:scale-95 w-full max-w-xs lg:max-w-none lg:w-auto mb-8 lg:mb-0"
     >
       🎮 ¡GIRAR RULETA! 🎮
     </button>
@@ -68,17 +40,46 @@
           <div class="text-8xl mb-8">🎉</div>
           <h2 class="text-white/90 text-4xl font-semibold mb-6">¡GANADOR!</h2>
           <div id="resultText" class="text-fortnite-yellow font-black text-6xl mb-10 tracking-wide"></div>
-          <button id="closeModal" class="backdrop-blur-[15px] bg-white/10 hover:bg-white/20 px-12 py-4 rounded-xl text-white font-medium text-xl border border-white/30 transition-all duration-300 hover:scale-105">
-            ✨ ¡Genial!
+          <button id="closeModal" class="bg-gradient-to-r from-fortnite-blue to-fortnite-purple hover:from-fortnite-purple hover:to-fortnite-blue text-white font-bold px-4 py-2 lg:px-12 lg:py-5 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 border-2 border-white/30 text-base lg:text-2xl w-full max-w-xs lg:max-w-md whitespace-nowrap">
+            ✨ ¡CONTINUAR! ✨
           </button>
         </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Left Panel - Spin Control - Now below wheel on mobile -->
+  <div class="backdrop-blur-[25px] bg-white/5 p-4 lg:p-8 rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] w-full max-w-[280px] lg:w-[320px] order-2 lg:order-1">
+    <h3 class="text-white/90 font-semibold text-lg lg:text-2xl mb-3 lg:mb-6 text-center tracking-wide"> CONTROL DE GIROS</h3>
+    
+    <div class="space-y-3 lg:space-y-6">
+      <div>
+        <label class="text-white/80 text-xs lg:text-sm font-medium mb-2 lg:mb-3 block">Ganador en el giro:</label>
+        <div class="grid grid-cols-5 gap-1 lg:gap-2">
+          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-1 px-2 lg:py-2 lg:px-3 text-white font-medium transition-all duration-300 hover:scale-105 text-sm lg:text-base" data-spin="1">1</button>
+          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-1 px-2 lg:py-2 lg:px-3 text-white font-medium transition-all duration-300 hover:scale-105 text-sm lg:text-base" data-spin="2">2</button>
+          <button class="spin-selector bg-blue-500/30 hover:bg-blue-500/40 border border-blue-400/50 rounded-lg py-1 px-2 lg:py-2 lg:px-3 text-white font-medium transition-all duration-300 hover:scale-105 selected text-sm lg:text-base" data-spin="3">3</button>
+          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-1 px-2 lg:py-2 lg:px-3 text-white font-medium transition-all duration-300 hover:scale-105 text-sm lg:text-base" data-spin="4">4</button>
+          <button class="spin-selector bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg py-1 px-2 lg:py-2 lg:px-3 text-white font-medium transition-all duration-300 hover:scale-105 text-sm lg:text-base" data-spin="5">5</button>
+        </div>
+      </div>
+      
+      <div class="bg-white/5 rounded-xl p-2 lg:p-4 border border-white/20">
+        <div class="text-white/70 text-xs lg:text-sm mb-1 lg:mb-2">Giro actual:</div>
+        <div id="currentSpinCount" class="text-white font-bold text-lg lg:text-2xl">0</div>
+      </div>
+      
+      <div class="bg-white/5 rounded-xl p-2 lg:p-4 border border-white/20">
+        <div class="text-white/70 text-xs lg:text-sm mb-1 lg:mb-2">Ganador se decidirá en:</div>
+        <div id="selectedSpinNumber" class="text-blue-400 font-bold text-lg lg:text-2xl">Giro 3</div>
       </div>
     </div>
   </div>
   
   <!-- Options Panel -->
-  <div class="backdrop-blur-[25px] bg-white/5 p-10 rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] w-[450px] self-center mt-[-200px]">
-    <h3 class="text-white/90 font-semibold text-2xl mb-6 text-center tracking-wide">⚙️ OPCIONES</h3>
+  <div class="backdrop-blur-[25px] bg-white/5 p-3 lg:p-10 rounded-2xl lg:rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] w-full max-w-[280px] lg:max-w-[370px] lg:w-[370px] self-center mt-0 lg:mt-[-200px] order-3">
+    <h3 class="text-white/90 font-semibold text-base lg:text-2xl mb-3 lg:mb-6 text-center tracking-wide">⚙️ OPCIONES</h3>
     
     <!-- Options List -->
     <div id="optionsList" class="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
@@ -86,23 +87,23 @@
     </div>
     
     <!-- Add Option -->
-    <div class="space-y-4">
+    <div class="space-y-3 lg:space-y-4">
       <input 
         type="text" 
         id="newOption" 
         placeholder="Nueva opción..." 
-        class="w-full px-4 py-3 backdrop-blur-[15px] bg-white/10 border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all duration-300"
+        class="w-full px-3 py-2 lg:px-4 lg:py-3 backdrop-blur-[15px] bg-white/10 border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all duration-300 text-sm lg:text-base"
         maxlength="20"
       />
       <button 
         id="addOption" 
-        class="w-full backdrop-blur-[15px] bg-green-500/20 hover:bg-green-500/30 px-4 py-3 rounded-xl text-white font-medium border border-white/30 transition-all duration-300 hover:scale-105"
+        class="w-full backdrop-blur-[15px] bg-green-500/20 hover:bg-green-500/30 px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-white font-medium border border-white/30 transition-all duration-300 hover:scale-105 text-sm lg:text-base"
       >
         ➕ Agregar
       </button>
       <button 
         id="resetOptions" 
-        class="w-full backdrop-blur-[15px] bg-red-500/20 hover:bg-red-500/30 px-4 py-3 rounded-xl text-white font-medium border border-white/30 transition-all duration-300 hover:scale-105"
+        class="w-full backdrop-blur-[15px] bg-red-500/20 hover:bg-red-500/30 px-3 py-2 lg:px-4 lg:py-3 rounded-xl text-white font-medium border border-white/30 transition-all duration-300 hover:scale-105 text-sm lg:text-base"
       >
         🔄 Resetear
       </button>
@@ -232,7 +233,9 @@
       textElement.style.pointerEvents = 'none';
       
       // Calcular la posición para que el texto esté centrado en el segmento
-      const textRadius = 220; // Distancia del centro para mejor centrado
+      // Ajustar el radio basado en el tamaño de la ruleta
+      const wheelSize = window.innerWidth < 640 ? 350 : (window.innerWidth < 1024 ? 450 : 700);
+      const textRadius = wheelSize * 0.31; // 31% del radio de la ruleta para mejor posicionamiento
       const textAngle = midAngle - 90; // Ajustar para que 0° sea arriba
       const textX = textRadius * Math.cos(textAngle * Math.PI / 180);
       const textY = textRadius * Math.sin(textAngle * Math.PI / 180);
@@ -245,13 +248,15 @@
       const textSpan = document.createElement('span');
       textSpan.textContent = option;
       textSpan.style.color = '#FFFFFF';
-      textSpan.style.fontSize = '24px'; // Texto más grande
+      // Tamaño de texto responsivo basado en el tamaño de la ruleta
+      const fontSize = wheelSize < 400 ? '14px' : (wheelSize < 500 ? '18px' : '24px');
+      textSpan.style.fontSize = fontSize;
       textSpan.style.fontWeight = 'bold';
       textSpan.style.textAlign = 'center';
       textSpan.style.textShadow = '3px 3px 8px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.8), 2px 2px 0px rgba(0,0,0,1)';
       textSpan.style.whiteSpace = 'nowrap';
       textSpan.style.display = 'inline-block';
-      textSpan.style.letterSpacing = '1.5px';
+      textSpan.style.letterSpacing = '1px';
       textSpan.style.transform = 'translateX(-50%) translateY(-50%)'; // Centrar horizontal y verticalmente
       
       textElement.appendChild(textSpan);
