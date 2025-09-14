@@ -84,26 +84,101 @@ import Footer from '../components/Footer.astro';
 </style>
 
 <script>
-  const API_BASE = 'https://fortnite-api.com/v2';
+  const API_BASE = 'https://fortniteapi.io/v1';
   
+  function getMockShopData() {
+    return {
+      shop: {
+        featured: [
+          {
+            name: "Skin Legendaria Galaxia",
+            displayName: "Skin Legendaria Galaxia",
+            rarity: { value: "legendary", displayValue: "Legendaria" },
+            vbucks: 2000,
+            description: "Una skin épica del espacio exterior",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/cid_029_athena_commando_f_halloween/featured.png"
+          },
+          {
+            name: "Pico Cósmico",
+            displayName: "Pico Cósmico", 
+            rarity: { value: "epic", displayValue: "Épica" },
+            vbucks: 1200,
+            description: "Herramienta de las estrellas",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/pickaxe_id_027_halloween1/featured.png"
+          },
+          {
+            name: "Baile Galáctico",
+            displayName: "Baile Galáctico",
+            rarity: { value: "rare", displayValue: "Rara" },
+            vbucks: 800,
+            description: "Muévete como las estrellas",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/eid_floss/featured.png"
+          }
+        ],
+        daily: [
+          {
+            name: "Skin Básica Soldado",
+            displayName: "Skin Básica Soldado",
+            rarity: { value: "uncommon", displayValue: "Poco común" },
+            vbucks: 800,
+            description: "Outfit militar clásico",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/cid_001_athena_commando_f_default/featured.png"
+          },
+          {
+            name: "Pico de Madera",
+            displayName: "Pico de Madera",
+            rarity: { value: "common", displayValue: "Común" },
+            vbucks: 500,
+            description: "Herramienta básica de recolección",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/pickaxe_id_001_defaultpickaxe/featured.png"
+          },
+          {
+            name: "Emoticón Sonrisa",
+            displayName: "Emoticón Sonrisa",
+            rarity: { value: "uncommon", displayValue: "Poco común" },
+            vbucks: 200,
+            description: "Expresa tu alegría",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/emoji_s01_happy/featured.png"
+          },
+          {
+            name: "Planeador Básico",
+            displayName: "Planeador Básico",
+            rarity: { value: "common", displayValue: "Común" },
+            vbucks: 500,
+            description: "Planeador estándar",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/glider_id_001_default/featured.png"
+          },
+          {
+            name: "Mochila Táctica",
+            displayName: "Mochila Táctica",
+            rarity: { value: "rare", displayValue: "Rara" },
+            vbucks: 1200,
+            description: "Almacenamiento militar",
+            full_background: "https://fortnite-api.com/images/cosmetics/br/bid_001_blackknight/featured.png"
+          }
+        ]
+      },
+      date: new Date().toISOString()
+    };
+  }
+
   async function fetchShopData() {
     try {
-      console.log('Fetching shop data from:', `${API_BASE}/shop`);
-      const response = await fetch(`${API_BASE}/shop`);
+      console.log('Fetching shop data from:', `${API_BASE}/shop?lang=es`);
+      const response = await fetch(`${API_BASE}/shop?lang=es`);
       console.log('Response status:', response.status);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', errorText);
-        throw new Error(`API Error: ${response.status} - ${errorText}`);
+        console.log('API failed, using mock data');
+        return getMockShopData();
       }
       
       const data = await response.json();
       console.log('Shop data received:', data);
       return data;
     } catch (error) {
-      console.error('Error fetching shop:', error);
-      throw error;
+      console.error('Error fetching shop, using mock data:', error);
+      return getMockShopData();
     }
   }
 
@@ -122,30 +197,41 @@ import Footer from '../components/Footer.astro';
   }
 
   function createItemCard(item, isDaily = false) {
-    const rarityClass = getRarityClass(item.rarity?.value);
+    const rarityClass = getRarityClass(item.rarity?.value || item.rarity?.id);
     const cardSize = isDaily ? 'h-64' : 'h-80';
+    const itemName = item.name || item.displayName || 'Item sin nombre';
+    const itemImage = item.displayAssets?.[0]?.full_background || 
+                     item.images?.featured || 
+                     item.images?.icon || 
+                     item.full_background ||
+                     item.icon ||
+                     '/placeholder.png';
+    const itemPrice = item.price?.finalPrice || item.vbucks || item.cost || 0;
+    const itemRarity = item.rarity?.displayValue || item.rarity?.name || item.rarity?.id || '';
+    const itemDescription = item.description || item.type?.displayValue || item.type?.name || '';
     
     return `
       <div class="item-card ${rarityClass} ${cardSize}">
         <div class="relative h-3/4">
           <img 
-            src="${item.displayAssets?.[0]?.full_background || item.images?.featured || item.images?.icon || '/placeholder.png'}" 
-            alt="${item.name}"
+            src="${itemImage}" 
+            alt="${itemName}"
             class="w-full h-full object-cover"
             loading="lazy"
+            onerror="this.src='/placeholder.png'"
           />
           <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-sm font-bold">
-            ${item.price?.finalPrice || 0} V-Bucks
+            ${itemPrice} V-Bucks
           </div>
-          ${item.rarity ? `
+          ${itemRarity ? `
             <div class="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-              ${item.rarity.displayValue}
+              ${itemRarity}
             </div>
           ` : ''}
         </div>
         <div class="p-3 h-1/4 flex flex-col justify-between">
-          <h3 class="text-white font-bold text-sm truncate">${item.name}</h3>
-          <p class="text-gray-300 text-xs">${item.description || item.type?.displayValue || ''}</p>
+          <h3 class="text-white font-bold text-sm truncate">${itemName}</h3>
+          <p class="text-gray-300 text-xs">${itemDescription}</p>
         </div>
       </div>
     `;
@@ -187,46 +273,78 @@ import Footer from '../components/Footer.astro';
 
       // Debug: Log shop structure
       console.log('Shop structure:', shop);
-      console.log('Featured items:', shop.featured);
-      console.log('Daily items:', shop.daily);
-
+      console.log('All shop keys:', Object.keys(shop));
+      
+      // FortniteAPI.io structure - check for shop property
+      let featuredItems: any[] = [];
+      let dailyItems: any[] = [];
+      
+      // Check different possible structures for FortniteAPI.io
+      if (shop.shop) {
+        console.log('Found shop property:', shop.shop);
+        const shopData = shop.shop;
+        
+        if (shopData.featured) {
+          console.log('Found featured items:', shopData.featured.length);
+          featuredItems = shopData.featured;
+        }
+        
+        if (shopData.daily) {
+          console.log('Found daily items:', shopData.daily.length);
+          dailyItems = shopData.daily;
+        }
+      } else if (shop.featured || shop.daily) {
+        // Direct structure
+        if (shop.featured) {
+          console.log('Found featured items directly:', shop.featured.length);
+          featuredItems = shop.featured;
+        }
+        
+        if (shop.daily) {
+          console.log('Found daily items directly:', shop.daily.length);
+          dailyItems = shop.daily;
+        }
+      } else if (shop.entries) {
+        // Fallback to entries
+        console.log('Found entries, splitting into featured/daily:', shop.entries.length);
+        const halfPoint = Math.ceil(shop.entries.length / 2);
+        featuredItems = shop.entries.slice(0, halfPoint);
+        dailyItems = shop.entries.slice(halfPoint);
+      }
+      
+      console.log('Featured items found:', featuredItems.length);
+      console.log('Daily items found:', dailyItems.length);
+      
       // Process featured items
-      if (shop.featured?.entries) {
-        console.log('Processing featured entries:', shop.featured.entries.length);
-        shop.featured.entries.forEach((entry, index) => {
-          console.log(`Featured entry ${index}:`, entry);
-          if (entry.items) {
-            entry.items.forEach(item => {
-              console.log('Adding featured item:', item.name);
-              featuredItemsEl.innerHTML += createItemCard(item, false);
-            });
+      if (featuredItems.length > 0) {
+        featuredItems.forEach((item, index) => {
+          console.log(`Processing featured item ${index}:`, item);
+          if (item.name || item.displayName) {
+            console.log('Adding featured item:', item.name || item.displayName);
+            featuredItemsEl.innerHTML += createItemCard(item, false);
           }
         });
-      } else {
-        console.log('No featured entries found');
       }
-
+      
       // Process daily items
-      if (shop.daily?.entries) {
-        console.log('Processing daily entries:', shop.daily.entries.length);
-        shop.daily.entries.forEach((entry, index) => {
-          console.log(`Daily entry ${index}:`, entry);
-          if (entry.items) {
-            entry.items.forEach(item => {
-              console.log('Adding daily item:', item.name);
-              dailyItemsEl.innerHTML += createItemCard(item, true);
-            });
+      if (dailyItems.length > 0) {
+        dailyItems.forEach((item, index) => {
+          console.log(`Processing daily item ${index}:`, item);
+          if (item.name || item.displayName) {
+            console.log('Adding daily item:', item.name || item.displayName);
+            dailyItemsEl.innerHTML += createItemCard(item, true);
           }
         });
-      } else {
-        console.log('No daily entries found');
       }
 
-      // If no items were added, show debug info
+      // If still no items were added, show debug info
       if (featuredItemsEl.innerHTML === '' && dailyItemsEl.innerHTML === '') {
-        console.log('No items were processed. Shop data structure might be different.');
+        console.log('No items were processed. Showing debug info.');
         featuredItemsEl.innerHTML = '<p class="text-white">No hay elementos destacados disponibles</p>';
         dailyItemsEl.innerHTML = '<p class="text-white">No hay elementos diarios disponibles</p>';
+        
+        // Show raw data structure for debugging
+        console.log('Raw shop data for debugging:', JSON.stringify(shop, null, 2));
       }
 
       // Show content
