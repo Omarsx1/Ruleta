@@ -1,0 +1,57 @@
+---
+import Header from '../components/Header.astro';
+import Ruleta from '../components/Ruleta.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Fortnite Ruleta - ¡Gira y Gana!</title>
+    <meta name="description" content="Ruleta interactiva con temática de Fortnite. ¡Gira la ruleta y descubre tu próximo desafío!" />
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-fortnite-dark via-fortnite-darker to-fortnite-dark flex flex-col">
+    <Header />
+    <main class="flex-1 pt-0">
+      <Ruleta />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-family: 'Arial Black', Arial, sans-serif;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1a1a2e;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #00D4FF;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8B5CF6;
+  }
+</style>

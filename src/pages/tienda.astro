@@ -1,0 +1,254 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Tienda Fortnite - API Test</title>
+    <meta name="description" content="Prueba de la API de Fortnite para mostrar la tienda del día" />
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-fortnite-dark via-fortnite-darker to-fortnite-dark flex flex-col">
+    <Header />
+    <main class="flex-1 pt-0 p-8">
+      <div class="max-w-7xl mx-auto">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-20">
+          <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-fortnite-yellow"></div>
+          <p class="text-white mt-4 text-xl">Cargando tienda de Fortnite...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden text-center py-20">
+          <div class="text-red-400 text-6xl mb-4">⚠️</div>
+          <p class="text-white text-xl">Error al cargar la tienda</p>
+          <button id="retryBtn" class="mt-4 bg-fortnite-yellow text-black px-6 py-2 rounded-lg font-bold hover:bg-yellow-400 transition-colors">
+            Reintentar
+          </button>
+        </div>
+
+        <!-- Shop Content -->
+        <div id="shopContent" class="hidden">
+          <!-- Shop Header -->
+          <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">
+              🛒 <span class="bg-gradient-to-r from-fortnite-yellow to-orange-400 bg-clip-text text-transparent">TIENDA FORTNITE</span>
+            </h1>
+            <p class="text-gray-300 text-xl">Elementos disponibles hoy</p>
+            <div id="lastUpdate" class="text-gray-400 mt-2"></div>
+          </div>
+
+          <!-- Featured Items -->
+          <div class="mb-12">
+            <h2 class="text-3xl font-bold text-white mb-6 flex items-center">
+              ⭐ <span class="ml-2">Elementos Destacados</span>
+            </h2>
+            <div id="featuredItems" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <!-- Featured items will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Daily Items -->
+          <div>
+            <h2 class="text-3xl font-bold text-white mb-6 flex items-center">
+              📅 <span class="ml-2">Elementos Diarios</span>
+            </h2>
+            <div id="dailyItems" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <!-- Daily items will be inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  .item-card {
+    @apply backdrop-blur-[25px] bg-white/10 rounded-2xl border border-white/20 overflow-hidden hover:bg-white/15 transition-all duration-300 hover:scale-105;
+  }
+  
+  .rarity-common { @apply border-gray-400; }
+  .rarity-uncommon { @apply border-green-400; }
+  .rarity-rare { @apply border-blue-400; }
+  .rarity-epic { @apply border-purple-400; }
+  .rarity-legendary { @apply border-orange-400; }
+  .rarity-mythic { @apply border-yellow-400; }
+  .rarity-exotic { @apply border-cyan-400; }
+  .rarity-transcendent { @apply border-red-400; }
+</style>
+
+<script>
+  const API_BASE = 'https://fortnite-api.com/v2';
+  
+  async function fetchShopData() {
+    try {
+      console.log('Fetching shop data from:', `${API_BASE}/shop`);
+      const response = await fetch(`${API_BASE}/shop`);
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Shop data received:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching shop:', error);
+      throw error;
+    }
+  }
+
+  function getRarityClass(rarity) {
+    const rarityMap = {
+      'common': 'rarity-common',
+      'uncommon': 'rarity-uncommon', 
+      'rare': 'rarity-rare',
+      'epic': 'rarity-epic',
+      'legendary': 'rarity-legendary',
+      'mythic': 'rarity-mythic',
+      'exotic': 'rarity-exotic',
+      'transcendent': 'rarity-transcendent'
+    };
+    return rarityMap[rarity?.toLowerCase()] || 'rarity-common';
+  }
+
+  function createItemCard(item, isDaily = false) {
+    const rarityClass = getRarityClass(item.rarity?.value);
+    const cardSize = isDaily ? 'h-64' : 'h-80';
+    
+    return `
+      <div class="item-card ${rarityClass} ${cardSize}">
+        <div class="relative h-3/4">
+          <img 
+            src="${item.displayAssets?.[0]?.full_background || item.images?.featured || item.images?.icon || '/placeholder.png'}" 
+            alt="${item.name}"
+            class="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-sm font-bold">
+            ${item.price?.finalPrice || 0} V-Bucks
+          </div>
+          ${item.rarity ? `
+            <div class="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+              ${item.rarity.displayValue}
+            </div>
+          ` : ''}
+        </div>
+        <div class="p-3 h-1/4 flex flex-col justify-between">
+          <h3 class="text-white font-bold text-sm truncate">${item.name}</h3>
+          <p class="text-gray-300 text-xs">${item.description || item.type?.displayValue || ''}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadShop() {
+    const loadingEl = document.getElementById('loading');
+    const errorEl = document.getElementById('error');
+    const shopContentEl = document.getElementById('shopContent');
+    const featuredItemsEl = document.getElementById('featuredItems');
+    const dailyItemsEl = document.getElementById('dailyItems');
+    const lastUpdateEl = document.getElementById('lastUpdate');
+
+    if (!loadingEl || !errorEl || !shopContentEl || !featuredItemsEl || !dailyItemsEl || !lastUpdateEl) {
+      console.error('Required DOM elements not found');
+      return;
+    }
+
+    try {
+      loadingEl.classList.remove('hidden');
+      errorEl.classList.add('hidden');
+      shopContentEl.classList.add('hidden');
+
+      const data = await fetchShopData();
+      
+      if (!data.data) throw new Error('No shop data available');
+
+      const shop = data.data;
+      
+      // Update last update time
+      if (shop.date) {
+        const date = new Date(shop.date);
+        lastUpdateEl.textContent = `Última actualización: ${date.toLocaleString('es-ES')}`;
+      }
+
+      // Clear previous content
+      featuredItemsEl.innerHTML = '';
+      dailyItemsEl.innerHTML = '';
+
+      // Debug: Log shop structure
+      console.log('Shop structure:', shop);
+      console.log('Featured items:', shop.featured);
+      console.log('Daily items:', shop.daily);
+
+      // Process featured items
+      if (shop.featured?.entries) {
+        console.log('Processing featured entries:', shop.featured.entries.length);
+        shop.featured.entries.forEach((entry, index) => {
+          console.log(`Featured entry ${index}:`, entry);
+          if (entry.items) {
+            entry.items.forEach(item => {
+              console.log('Adding featured item:', item.name);
+              featuredItemsEl.innerHTML += createItemCard(item, false);
+            });
+          }
+        });
+      } else {
+        console.log('No featured entries found');
+      }
+
+      // Process daily items
+      if (shop.daily?.entries) {
+        console.log('Processing daily entries:', shop.daily.entries.length);
+        shop.daily.entries.forEach((entry, index) => {
+          console.log(`Daily entry ${index}:`, entry);
+          if (entry.items) {
+            entry.items.forEach(item => {
+              console.log('Adding daily item:', item.name);
+              dailyItemsEl.innerHTML += createItemCard(item, true);
+            });
+          }
+        });
+      } else {
+        console.log('No daily entries found');
+      }
+
+      // If no items were added, show debug info
+      if (featuredItemsEl.innerHTML === '' && dailyItemsEl.innerHTML === '') {
+        console.log('No items were processed. Shop data structure might be different.');
+        featuredItemsEl.innerHTML = '<p class="text-white">No hay elementos destacados disponibles</p>';
+        dailyItemsEl.innerHTML = '<p class="text-white">No hay elementos diarios disponibles</p>';
+      }
+
+      // Show content
+      loadingEl.classList.add('hidden');
+      shopContentEl.classList.remove('hidden');
+
+    } catch (error) {
+      console.error('Error loading shop:', error);
+      loadingEl.classList.add('hidden');
+      errorEl.classList.remove('hidden');
+      
+      // Show more detailed error in the UI
+      const errorMessage = errorEl.querySelector('p');
+      if (errorMessage) {
+        errorMessage.textContent = `Error: ${error.message || 'No se pudo cargar la tienda'}`;
+      }
+    }
+  }
+
+  // Retry button
+  document.getElementById('retryBtn')?.addEventListener('click', loadShop);
+
+  // Load shop on page load
+  document.addEventListener('DOMContentLoaded', loadShop);
+</script>
