@@ -457,6 +457,12 @@
         selectedSpinNumberEl.textContent = `Giro ${selectedWinningSpinNumber}`;
       }
       
+      // Update the nextDiscard element as well
+      const nextDiscardEl = document.getElementById('nextDiscard');
+      if (nextDiscardEl) {
+        nextDiscardEl.textContent = `Giro ${selectedWinningSpinNumber}`;
+      }
+      
       // Reset spin count when changing the winning spin number
       currentSpinCount = 0;
       const currentSpinCountEl = document.getElementById('currentSpinCount');
