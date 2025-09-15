@@ -99,6 +99,7 @@
       />
       <button 
         id="addOption" 
+        type="button"
         class="w-full bg-gradient-to-br from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-black font-bold px-2 py-1 md:px-3 md:py-2 lg:px-2 lg:py-1 xl:px-3 xl:py-1 2xl:px-4 2xl:py-3 3xl:px-4 3xl:py-3 rounded-lg xl:rounded-xl border-2 border-yellow-300/50 hover:border-yellow-200 transition-all duration-200 hover:scale-105 shadow-lg text-xs md:text-sm lg:text-xs xl:text-sm 2xl:text-lg 3xl:text-base"
       >
         ➕ Agregar
@@ -114,6 +115,8 @@
 </div>
 
 <script>
+// Use window.onload to ensure everything is loaded
+window.addEventListener('load', () => {
   const wheel = document.getElementById('wheel') as HTMLElement;
   const spinButton = document.getElementById('spinButton') as HTMLButtonElement;
   const resultModal = document.getElementById('resultModal') as HTMLElement;
@@ -132,7 +135,10 @@
   
   const colors = [
     '#00D4FF', '#FF6B35', '#32CD32', '#8B5CF6',
-    '#FFD700', '#FF1493', '#DC2626', '#6B7280'
+    '#FFD700', '#FF1493', '#DC2626', '#6B7280',
+    '#F97316', '#10B981', '#3B82F6', '#EF4444',
+    '#8B5A2B', '#06B6D4', '#84CC16', '#F59E0B',
+    '#EC4899', '#6366F1', '#14B8A6', '#F43F5E'
   ];
   
   let isSpinning = false;
@@ -178,6 +184,7 @@
     segments.innerHTML = '';
     
     const segmentAngle = 360 / options.length;
+    console.log('Creating segments for', options.length, 'options:', options);
     
     options.forEach((option, index) => {
       const segment = document.createElement('div');
@@ -283,6 +290,8 @@
     if (!optionsList) return;
     optionsList.innerHTML = '';
     
+    console.log('Updating options list with', options.length, 'options:', options);
+    
     options.forEach((option, index) => {
       const optionItem = document.createElement('div');
       optionItem.className = 'flex items-center justify-between p-1 lg:p-1 xl:p-2 2xl:p-2 3xl:p-3 backdrop-blur-[15px] bg-white/10 rounded-lg lg:rounded-lg xl:rounded-xl border border-white/20 hover:bg-white/15 hover:border-white/40 transition-all duration-300 group cursor-pointer';
@@ -330,16 +339,6 @@
     });
   }
   
-  function addOption() {
-    if (!newOptionInput) return;
-    const newOption = newOptionInput.value.trim();
-    if (newOption && options.length < 12) {
-      options.push(newOption);
-      newOptionInput.value = '';
-      createSegments();
-      updateOptionsList();
-    }
-  }
   
   function removeOption(index: number) {
     if (options.length > 2) {
@@ -472,14 +471,75 @@
     });
   });
 
-  addOptionButton?.addEventListener('click', addOption);
-  resetOptionsButton?.addEventListener('click', resetOptions);
-  
-  newOptionInput?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      addOption();
+  // Make functions globally accessible
+  (window as any).addNewOption = function() {
+    console.log('addNewOption function called');
+    
+    const input = document.getElementById('newOption') as HTMLInputElement;
+    if (!input) {
+      console.error('Input element not found');
+      return;
     }
+    
+    console.log('Input element found. Raw value:', `"${input.value}"`); 
+    console.log('Value length:', input.value.length);
+    console.log('Value character codes:', [...input.value].map(c => c.charCodeAt(0)));
+    
+    const rawValue = input.value;
+    const trimmedValue = rawValue.trim();
+    
+    console.log('Raw value:', `"${rawValue}"`);
+    console.log('Trimmed value:', `"${trimmedValue}"`);
+    console.log('Trimmed length:', trimmedValue.length);
+    
+    if (!trimmedValue || trimmedValue.length === 0) {
+      console.log('Empty option - cannot add (after detailed check)');
+      alert('Por favor ingresa un texto para la opción');
+      return;
+    }
+    
+    if (options.length >= 15) {
+      console.log('Maximum options reached (15)');
+      alert('Máximo 15 opciones permitidas');
+      return;
+    }
+    
+    console.log('Adding option successfully:', trimmedValue);
+    options.push(trimmedValue);
+    input.value = '';
+    console.log('Options after adding:', options);
+    createSegments();
+    updateOptionsList();
+    console.log('Segments and list updated successfully');
+  };
+  
+  (window as any).resetAllOptions = function() {
+    options = [
+      'Opción 1', 'Opción 2', 'Opción 3', 'Opción 4',
+      'Opción 5', 'Opción 6', 'Opción 7', 'Opción 8'
+    ];
+    createSegments();
+    updateOptionsList();
+  };
+  
+  // Additional event listener for add button (backup method)
+  addOptionButton?.addEventListener('click', (e) => {
+    e.preventDefault();
+    console.log('Add button clicked via addEventListener');
+    (window as any).addNewOption();
   });
+  
+  // Enter key support
+  const newInput = document.getElementById('newOption');
+  if (newInput) {
+    newInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        console.log('Enter key pressed');
+        (window as any).addNewOption();
+      }
+    });
+  }
   
   // Close modal event listener
   closeModal?.addEventListener('click', () => {
@@ -493,9 +553,21 @@
     }
   });
   
+  // Reset button event listener
+  resetOptionsButton?.addEventListener('click', () => {
+    options = [
+      'Opción 1', 'Opción 2', 'Opción 3', 'Opción 4',
+      'Opción 5', 'Opción 6', 'Opción 7', 'Opción 8'
+    ];
+    createSegments();
+    updateOptionsList();
+    console.log('Options reset to default');
+  });
+  
   // Initialize
   createSegments();
   updateOptionsList();
+});
 </script>
 
 <style>
